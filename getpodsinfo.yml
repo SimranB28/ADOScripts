@@ -1,0 +1,43 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger: none
+
+pool: HalfBlood
+
+steps:
+
+# - script: |
+#     bash --version
+#     az version
+#     kubectl version --client
+#   displayName: 'Validate CLI tools'
+
+- task: AzureCLI@2
+  displayName: 'Authenticate with AKS and run kubectl'
+  inputs:
+    # kubernetesServiceConnection: 'AKSazureSC'  # 🔑 Replace with actual service connection name
+    azureSubscription: SubscriptionScopedArtemis
+    scriptType: 'bash'
+    scriptLocation: 'inlineScript'
+    inlineScript: |
+      echo "Logging into AKS..."
+
+      # Authenticate with AKS using az CLI
+      az aks get-credentials \
+        --resource-group Case-repro \
+        --name Case3296 \
+        --overwrite-existing
+
+      echo "Successfully connected to AKS"
+      
+      # Run any kubectl command
+      kubectl get pods --all-namespaces > podinfo.txt
+
+- task: PublishPipelineArtifact@1
+  inputs:
+    targetPath: '$(Pipeline.Workspace)'
+    artifact: 'pods'
+    publishLocation: 'pipeline'
