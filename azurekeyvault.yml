@@ -1,0 +1,34 @@
+trigger: none
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+
+- task: AzureKeyVault@2
+  inputs:
+    azureSubscription: 'SubscriptionScopedArtemis'
+    KeyVaultName: 'CaseKV01'
+    SecretsFilter: '*'
+    RunAsPreJob: true
+
+- script: echo $(test2)
+  displayName: 'Run a one-line script'
+
+- task: CmdLine@2
+  displayName: Create file
+  inputs:
+    script: 'echo $(test2) > secret.txt'
+
+- task: CopyFiles@2
+  displayName: Copy file
+  inputs:
+    Contents: secret.txt
+    targetFolder: '$(Build.ArtifactStagingDirectory)'
+
+- task: PublishBuildArtifacts@1
+  displayName: Publish Artifact
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    ArtifactName: 'drop'
+    publishLocation: 'Container'
