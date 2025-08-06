@@ -1,37 +1,53 @@
 trigger: none
 
-pool:
-  vmImage: ubuntu-latest
+parameters:
+- name: env
+  displayName: 'Select environment'
+  type: string
+  default: dev
+  values:
+    - dev
+    - qa
+    - prod
 
 stages:
 - stage: Waiting_For_Approval
   displayName: 'Manual Approval Stage'
+  condition: eq('${{ parameters.env }}', 'prod')  # ✅ Run only if env == 'prod'
   jobs:
   - job: Approval
     displayName: 'Approval Job'
-    pool: server   
+    pool: server
     steps:
     - task: ManualValidation@1
       displayName: 'Manual Approval'
-      timeoutInMinutes: 10080  # 7 days
+      timeoutInMinutes: 10080
       inputs:
-        notifyUsers: 'abc@gmail.com, xyz@gmail.com'
-       approvers: 'abc@gmail.com, xyz@gmail.com'
+        notifyUsers: 'lyrasilvertongue28@gmail.com, simranbodhak@gmail.com'
+        approvers: 'lyrasilvertongue28@gmail.com, simranbodhak@gmail.com'
         instructions: 'Please approve the release job'
       env:
         SYSTEM_DEBUG: true
 
 - stage: Deployment
   displayName: 'Deployment Stage'
-  dependsOn: Waiting_For_Approval
-  condition: succeeded()
+  dependsOn: 
+    - Waiting_For_Approval
+  condition: |
+    or(
+      ne('${{ parameters.env }}', 'prod'),
+      and(
+        eq('${{ parameters.env }}', 'prod'),
+        succeeded('Waiting_For_Approval')
+      )
+    )
   jobs:
   - job: DeployToVM
-    displayName: 'Deploy to VM'
+    displayName: 'Deploy to ${{ parameters.env }}'
     pool:
       vmImage: ubuntu-latest
     steps:
-    - script: echo "My first deployment"
+    - script: echo "Deploying to ${{ parameters.env }} environment"
       displayName: 'Deployment Script Step'
 
     - script: |
