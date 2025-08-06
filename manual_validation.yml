@@ -1,0 +1,40 @@
+trigger: none
+
+pool:
+  vmImage: ubuntu-latest
+
+stages:
+- stage: Waiting_For_Approval
+  displayName: 'Manual Approval Stage'
+  jobs:
+  - job: Approval
+    displayName: 'Approval Job'
+    pool: server   
+    steps:
+    - task: ManualValidation@1
+      displayName: 'Manual Approval'
+      timeoutInMinutes: 10080  # 7 days
+      inputs:
+        notifyUsers: 'abc@gmail.com, xyz@gmail.com'
+       approvers: 'abc@gmail.com, xyz@gmail.com'
+        instructions: 'Please approve the release job'
+      env:
+        SYSTEM_DEBUG: true
+
+- stage: Deployment
+  displayName: 'Deployment Stage'
+  dependsOn: Waiting_For_Approval
+  condition: succeeded()
+  jobs:
+  - job: DeployToVM
+    displayName: 'Deploy to VM'
+    pool:
+      vmImage: ubuntu-latest
+    steps:
+    - script: echo "My first deployment"
+      displayName: 'Deployment Script Step'
+
+    - script: |
+        echo Add other tasks to build, test, and deploy your project.
+        echo See https://aka.ms/yaml
+      displayName: 'Post-deployment Steps'
