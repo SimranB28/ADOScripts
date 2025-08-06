@@ -1,0 +1,86 @@
+trigger: none
+
+pool: 
+  vmImage: ubuntu-latest
+
+parameters:
+- name: env
+  displayName: 'Select environment'
+  type: string
+  default: prod
+  values:
+    - dev
+    - qa
+    - prod
+
+- name: resourcegroup
+  displayName: 'Select resource group'
+  type: string
+  default: prodrg
+  values:
+    - devrg
+    - qarg
+    - prodrg
+
+- name: vm
+  displayName: 'Select vm name'
+  type: string
+  default: prodvm
+  values:
+    - devvm
+    - qavm
+    - prodvm
+
+variables:
+- name: finalenv
+  value: ${{ parameters.env }}
+
+- name: finalrg
+  value: ${{ parameters.resourcegroup }}
+
+- name: finalvm
+  value: ${{ parameters.vm }}
+
+stages:
+- stage: Stage1
+  displayName: 'Job 1 - Print Final Variables'
+  jobs:
+  - job: Job1
+    pool:
+      vmImage: ubuntu-latest
+    steps:
+    - script: |
+        echo "Env: $(finalenv)"
+        echo "Resource Group: $(finalrg)"
+        echo "VM Name: $(finalvm)"
+      displayName: 'Print Final Variables'
+
+- stage: Stage2
+  displayName: 'Job 2 - Redefine and Print Variables'
+  jobs:
+  - job: Job2
+    pool:
+      vmImage: ubuntu-latest
+    variables:
+      finalenv: 'devenv'
+      finalrg: 'devrg'
+      finalvm: 'devvm'
+    steps:
+    - script: |
+        echo "New Env: $(finalenv)"
+        echo "New Resource Group: $(finalrg)"
+        echo "New VM Name: $(finalenv)"
+      displayName: 'Print Redefined Variables'
+
+- stage: Stage3
+  displayName: 'Job 3 - Use Final Vars Again'
+  jobs:
+  - job: Job3
+    pool:
+      vmImage: ubuntu-latest
+    steps:
+    - script: |
+        echo "Env: $(finalenv)"
+        echo "Resource Group: $(finalrg)"
+        echo "VM Name: $(finalvm)"
+      displayName: 'Print Final Variables Again'
