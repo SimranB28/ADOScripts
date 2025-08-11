@@ -1,0 +1,39 @@
+trigger: none
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  appName: 'webappexpress'            # e.g. myexpressapp123
+  azureSubscription: 'SubscriptionScopedArtemis' # Azure DevOps service connection name
+  packageDir: 'myExpressApp'                             # Folder where package.json exists
+
+steps:
+- checkout: self
+
+- task: NodeTool@0
+  inputs:
+    versionSpec: '20.x'
+  displayName: 'Install Node.js'
+
+- script: |
+    cd $(packageDir)
+    npm install --production
+  displayName: 'Install Node Modules'
+
+- task: ArchiveFiles@2
+  inputs:
+    rootFolderOrFile: '$(packageDir)'
+    includeRootFolder: false
+    archiveType: 'zip'
+    archiveFile: '$(Build.ArtifactStagingDirectory)/$(appName).zip'
+    replaceExistingArchive: true
+  displayName: 'Archive app files'
+
+- task: AzureWebApp@1
+  inputs:
+    azureSubscription: '$(azureSubscription)'
+    appType: 'webAppLinux'
+    appName: '$(appName)'
+    package: '$(Build.ArtifactStagingDirectory)/$(appName).zip'
+  displayName: 'Deploy to Azure App Service (Linux)'
