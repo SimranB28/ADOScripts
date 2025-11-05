@@ -12,7 +12,7 @@ trigger:
     - main
     - releases/*
     - develop
-    - gh-readonly-queue/develop/*
+    - gh-readonly-queue/*
 
 pr:
   branches:
