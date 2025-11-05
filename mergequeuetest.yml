@@ -11,6 +11,7 @@ trigger:
     include:
     - main
     - releases/*
+    - develop/*
     - develop
     - gh-readonly-queue/*
 
