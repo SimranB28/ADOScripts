@@ -7,9 +7,11 @@
 name: $(Build.DefinitionName)_$(Date:yyyyMMdd)$(Rev:.r)
 
 trigger:
+  branches:
+    include:
     - main
-    - develop
     - releases/*
+    - develop
     - gh-readonly-queue/develop/*
 
 pr:
