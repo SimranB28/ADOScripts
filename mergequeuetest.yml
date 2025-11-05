@@ -11,6 +11,7 @@ trigger:
     include:
       - main
       - release/*
+      - gh-readonly-queue/develop/*
   paths:
     include:
       - src/**
