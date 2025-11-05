@@ -9,12 +9,11 @@ name: $(Build.DefinitionName)_$(Date:yyyyMMdd)$(Rev:.r)
 trigger:
   branches:
     include:
-      - main
-      - release/*
-  paths:
-    include:
-      - src/**
-      - azure-pipelines.yml
+    - main
+    - releases/*
+    - develop/*
+    - develop
+    - gh-readonly-queue/*
 
 pr:
   branches:
