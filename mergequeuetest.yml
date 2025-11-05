@@ -7,16 +7,10 @@
 name: $(Build.DefinitionName)_$(Date:yyyyMMdd)$(Rev:.r)
 
 trigger:
-  branches:
-    include:
-      - main
-      - release/*
-      - develop
-      - gh-readonly-queue/develop/*
-  paths:
-    include:
-      - src/**
-      - azure-pipelines.yml
+    - main
+    - develop
+    - releases/*
+    - gh-readonly-queue/develop/*
 
 pr:
   branches:
